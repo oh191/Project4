@@ -7,17 +7,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
-
+    Scanner s = new Scanner(System.in);
     String pattern = "HH:mm:ss";
     SimpleDateFormat sdf = new SimpleDateFormat(pattern);
     String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
     ArrayList<String> censoring = new ArrayList<>();
-
+    ChatFilter cf;
     private ChatServer(int port, String path) {
         this.port = port;
     }
@@ -46,52 +47,32 @@ final class ChatServer {
             e.printStackTrace();
         }
     }
+    private void setCF(String path){
+        cf = new ChatFilter(path);
+    }
 
+    private void addCF(String path, String aLine){
+        cf.add(path, aLine);
+    }
     /*
      *  > java ChatServer
      *  > java ChatServer portNumber
      *  If the port number is not specified 1500 is used
      */
-    public void setCensoring(String link) {
-        String line;
-        try {
-            FileReader fr = new FileReader(link);
-            BufferedReader br = new BufferedReader(fr);
-            while ((line = br.readLine()) != null) {
-                censoring.add(line);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    public String isCensoring(String a){
-        String target;
-        int lengthDifference;
-        String censored;
-        String passageFixed = a;
-        for (int i = 0; i < censoring.size(); i++) {
-            target = censoring.get(i);
-            lengthDifference = a.length() - target.length();
-            censored = "";
-            for (int j = 0; j < lengthDifference; j++) {
-                censored += "*";
-            }
-            for (int j = 0; j < lengthDifference; j++) {
-                String checker = a.substring(i, i + target.length());
-                if (checker.equals(target)){
-                    passageFixed = passageFixed.substring(0, i) +
-                            censored + passageFixed.substring(i + target.length());
-                }
-            }
-        }
-        return passageFixed;
-    }
 
     public static void main(String[] args) {
         ChatServer server;
+        Scanner scanner = new Scanner(System.in);
         if (args.length == 2) {
             server = new ChatServer(Integer.parseInt(args[0]), args[1]);
-            server.setCensoring(args[1]);
+            System.out.println("Banned Words File: " + args[1]);
+            System.out.println("Banned Words: ");
+            server.setCF(args[1]);
+            while (scanner.hasNextLine()) {
+                String newLine = scanner.nextLine();
+                server.addCF(args[1], newLine);
+            }
+
 
         } else {
             server = new ChatServer();
@@ -137,7 +118,6 @@ final class ChatServer {
                 try {
                     cm = (ChatMessage) sInput.readObject();
                     String messageCreated = cm.getMessage();
-                    messageCreated = isCensoring(messageCreated);
                     time = sdf.format(new Date(System.currentTimeMillis())) + " ";
                     if (cm.getTypes() == 1) {
                         broadcast(username + ": " + messageCreated);
@@ -158,7 +138,7 @@ final class ChatServer {
         }
 
         private synchronized void broadcast(String message) {
-
+            String newMessage = cf.filter(message);
             writeMessage(time + message);
             System.out.println(time + message);
         }
