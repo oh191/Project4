@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 final class ChatServer {
@@ -17,9 +19,11 @@ final class ChatServer {
     private ChatServer(int port) {
         this.port = port;
     }
-    private ChatServer(){
+
+    private ChatServer() {
         port = 1500;
     }
+
     /*
      * This is what starts the ChatServer.
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
@@ -31,7 +35,6 @@ final class ChatServer {
             ServerSocket serverSocket = new ServerSocket(port);
             while (true) {
                 socket = serverSocket.accept();
-
                 Runnable r = new ClientThread(socket, uniqueId++);
                 Thread t = new Thread(r);
                 clients.add((ClientThread) r);
@@ -47,11 +50,14 @@ final class ChatServer {
      *  > java ChatServer portNumber
      *  If the port number is not specified 1500 is used
      */
-    public static void main(String[] args) {
-        if (args.length != 1){
 
+    public static void main(String[] args) {
+        ChatServer server;
+        if (args.length == 1) {
+            server = new ChatServer(Integer.parseInt(args[0]));
+        } else {
+            server = new ChatServer(1500);
         }
-        ChatServer server = new ChatServer(1500);
         server.start();
     }
 
@@ -101,8 +107,25 @@ final class ChatServer {
                 e.printStackTrace();
             }
         }
-        private void broadcast(String message){
 
+        private void broadcast(String message) {
+            String pattern = "HH:mm:ss";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
+            writeMessage(time + message);
+            System.out.println(time + message);
+        }
+
+        private boolean writeMessage(String msg) {
+            try {
+                if (socket.isConnected()) {
+                    sOutput.writeObject(msg);
+                    return true;
+                }
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+            return false;
         }
     }
 }

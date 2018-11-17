@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 final class ChatClient {
     private ObjectInputStream sInput;
@@ -17,6 +18,7 @@ final class ChatClient {
         this.port = port;
         this.username = username;
     }
+
     private ChatClient(String username, int port) {
         this.server = "localHost";
         this.port = port;
@@ -29,7 +31,7 @@ final class ChatClient {
         this.username = username;
     }
 
-    private ChatClient(){
+    private ChatClient() {
         username = "Anonymous";
         port = 1500;
         server = "localHost";
@@ -95,23 +97,50 @@ final class ChatClient {
      * If the serverAddress is not specified "localHost" should be used
      * If the username is not specified "Anonymous" should be used
      */
-    public static void main(String[] args) {
+
+    private static void closes(ChatClient client) {
+        try {
+            client.sInput.close();
+            client.socket.close();
+            client.sOutput.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        Scanner s = new Scanner(System.in);
         // Get proper arguments and override defaults
         // Create your client and start it
         ChatClient client;
-        if (args.length == 3){
+
+        if (args.length == 3) {
             client = new ChatClient(args[2], Integer.parseInt(args[1]), args[0]);
-        } else if (args.length == 2){
+        } else if (args.length == 2) {
             client = new ChatClient(args[0], Integer.parseInt(args[1]));
-        } else if (args.length == 1){
+        } else if (args.length == 1) {
             client = new ChatClient(args[0]);
         } else {
             client = new ChatClient();
         }
+
         client.start();
 
+        while (s.hasNextLine()) {
+            String string = s.nextLine();
+            if (string.equalsIgnoreCase("/logout")) {
+                client.sOutput.flush();
+                closes(client);
+                System.out.println("Server has closed the connection.");
+                return;
+            } else {
+                client.sendMessage(new ChatMessage(string, 0));
+
+            }
+        }
         // Send an empty message to the server
-        client.sendMessage(new ChatMessage());
+
+
     }
 
 
