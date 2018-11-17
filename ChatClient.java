@@ -109,6 +109,7 @@ final class ChatClient {
     }
 
     public static void main(String[] args) throws IOException {
+
         Scanner s = new Scanner(System.in);
         // Get proper arguments and override defaults
         // Create your client and start it
@@ -126,7 +127,7 @@ final class ChatClient {
         }
         client.start();
 
-        while (s.hasNextLine()) {
+        while (true) {
             String string = s.nextLine();
             if (string.equalsIgnoreCase("/logout")) {
                 client.sendMessage(new ChatMessage( client.username + "disconnected with a LOGOUT message", 1));
@@ -136,12 +137,8 @@ final class ChatClient {
                 return;
             } else {
                 client.sendMessage(new ChatMessage(string, 0));
-
             }
         }
-        // Send an empty message to the server
-
-
     }
 
 

@@ -1,8 +1,6 @@
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
@@ -18,8 +16,9 @@ final class ChatServer {
     String pattern = "HH:mm:ss";
     SimpleDateFormat sdf = new SimpleDateFormat(pattern);
     String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
+    ArrayList<String> censoring = new ArrayList<>();
 
-    private ChatServer(int port) {
+    private ChatServer(int port, String path) {
         this.port = port;
     }
 
@@ -32,8 +31,7 @@ final class ChatServer {
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
-        if (clients.size() < 2)
-            System.out.println(time + "Server 1 waiting for Clients on port " + port);
+        System.out.println(time + "Server waiting for Clients on port " + port);
         Socket socket;
         try {
             ServerSocket serverSocket = new ServerSocket(port);
@@ -54,16 +52,51 @@ final class ChatServer {
      *  > java ChatServer portNumber
      *  If the port number is not specified 1500 is used
      */
+    public void setCensoring(String link) {
+        String line;
+        try {
+            FileReader fr = new FileReader(link);
+            BufferedReader br = new BufferedReader(fr);
+            while ((line = br.readLine()) != null) {
+                censoring.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public String isCensoring(String a){
+        String target;
+        int lengthDifference;
+        String censored;
+        String passageFixed = a;
+        for (int i = 0; i < censoring.size(); i++) {
+            target = censoring.get(i);
+            lengthDifference = a.length() - target.length();
+            censored = "";
+            for (int j = 0; j < lengthDifference; j++) {
+                censored += "*";
+            }
+            for (int j = 0; j < lengthDifference; j++) {
+                String checker = a.substring(i, i + target.length());
+                if (checker.equals(target)){
+                    passageFixed = passageFixed.substring(0, i) +
+                            censored + passageFixed.substring(i + target.length());
+                }
+            }
+        }
+        return passageFixed;
+    }
 
     public static void main(String[] args) {
         ChatServer server;
-        if (args.length == 1) {
-            server = new ChatServer(Integer.parseInt(args[0]));
+        if (args.length == 2) {
+            server = new ChatServer(Integer.parseInt(args[0]), args[1]);
+            server.setCensoring(args[1]);
+
         } else {
-            server = new ChatServer(1500);
+            server = new ChatServer();
         }
         server.start();
-
     }
 
 
@@ -88,6 +121,7 @@ final class ChatServer {
                 sInput = new ObjectInputStream(socket.getInputStream());
                 username = (String) sInput.readObject();
                 System.out.println(time + username + " just connected.");
+                System.out.println(time + "Server waiting for Clients on port " + port);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -99,18 +133,17 @@ final class ChatServer {
         @Override
         public void run() {
             while (true) {
-                if (clients.size() < 2) {
-                    System.out.println(time + "Server waiting for Clients on port " + port);
-                }
+                time = sdf.format(new Date(System.currentTimeMillis())) + " ";
                 try {
                     cm = (ChatMessage) sInput.readObject();
-
+                    String messageCreated = cm.getMessage();
+                    messageCreated = isCensoring(messageCreated);
+                    time = sdf.format(new Date(System.currentTimeMillis())) + " ";
                     if (cm.getTypes() == 1) {
-                        broadcast(username + ": " + cm.getMessage());
+                        broadcast(username + ": " + messageCreated);
                         remove(id);
                     } else {
-                        broadcast(username + ": " + cm.getMessage());
-                        sOutput.writeObject(username + ": " + cm.getMessage());
+                        broadcast(username + ": " + messageCreated);
                     }
                     if (clients.size() == 0) {
                         return;
@@ -137,7 +170,7 @@ final class ChatServer {
         private boolean writeMessage(String msg) {
             try {
                 if (socket.isConnected()) {
-                    sOutput.writeObject(msg);
+                    sOutput.writeObject(msg + "\n");
                     return true;
                 }
             } catch (IOException e) {
