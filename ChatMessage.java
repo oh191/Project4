@@ -22,10 +22,10 @@ final class ChatMessage implements Serializable {
         return types;
     }
 
-//    public ChatMessage(String message, int types){
-//        this.message = message;
-//        this.types = types;
-//
-//  }    // Here is where you should implement the chat message object.
+    public ChatMessage(String message, int types){
+        this.message = message;
+        this.types = types;
+
+  }    // Here is where you should implement the chat message object.
     // Variables, Constructors, Methods, etc.
 }

@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 final class ChatServer {
@@ -13,25 +15,30 @@ final class ChatServer {
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
 
+    String pattern = "HH:mm:ss";
+    SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+    String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
 
     private ChatServer(int port) {
         this.port = port;
     }
-    private ChatServer(){
+
+    private ChatServer() {
         port = 1500;
     }
+
     /*
      * This is what starts the ChatServer.
      * Right now it just creates the socketServer and adds a new ClientThread to a list to be handled
      */
     private void start() {
+        if (clients.size() < 2)
+            System.out.println(time + "Server 1 waiting for Clients on port " + port);
         Socket socket;
         try {
-
             ServerSocket serverSocket = new ServerSocket(port);
             while (true) {
                 socket = serverSocket.accept();
-
                 Runnable r = new ClientThread(socket, uniqueId++);
                 Thread t = new Thread(r);
                 clients.add((ClientThread) r);
@@ -47,12 +54,16 @@ final class ChatServer {
      *  > java ChatServer portNumber
      *  If the port number is not specified 1500 is used
      */
-    public static void main(String[] args) {
-        if (args.length != 1){
 
+    public static void main(String[] args) {
+        ChatServer server;
+        if (args.length == 1) {
+            server = new ChatServer(Integer.parseInt(args[0]));
+        } else {
+            server = new ChatServer(1500);
         }
-        ChatServer server = new ChatServer(1500);
         server.start();
+
     }
 
 
@@ -69,12 +80,14 @@ final class ChatServer {
         ChatMessage cm;
 
         private ClientThread(Socket socket, int id) {
+            time = sdf.format(new Date(System.currentTimeMillis())) + " ";
             this.id = id;
             this.socket = socket;
             try {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
                 username = (String) sInput.readObject();
+                System.out.println(time + username + " just connected.");
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -85,24 +98,52 @@ final class ChatServer {
          */
         @Override
         public void run() {
-            // Read the username sent to you by client
-            try {
-                cm = (ChatMessage) sInput.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+            while (true) {
+                if (clients.size() < 2) {
+                    System.out.println(time + "Server waiting for Clients on port " + port);
+                }
+                try {
+                    cm = (ChatMessage) sInput.readObject();
+
+                    if (cm.getTypes() == 1) {
+                        broadcast(username + ": " + cm.getMessage());
+                        remove(id);
+                    } else {
+                        broadcast(username + ": " + cm.getMessage());
+                        sOutput.writeObject(username + ": " + cm.getMessage());
+                    }
+                    if (clients.size() == 0) {
+                        return;
+                    }
+
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                // Send message back to the client
             }
-            System.out.println(username + ": Ping");
+        }
 
+        private synchronized void broadcast(String message) {
 
-            // Send message back to the client
+            writeMessage(time + message);
+            System.out.println(time + message);
+        }
+
+        public synchronized void remove(int id) {
+            clients.remove(id);
+        }
+
+        private boolean writeMessage(String msg) {
             try {
-                sOutput.writeObject("Pong");
+                if (socket.isConnected()) {
+                    sOutput.writeObject(msg);
+                    return true;
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-        private void broadcast(String message){
-
+            return false;
         }
     }
 }
