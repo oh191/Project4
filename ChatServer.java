@@ -17,7 +17,7 @@ final class ChatServer {
     String pattern = "HH:mm:ss";
     SimpleDateFormat sdf = new SimpleDateFormat(pattern);
     String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
-    ArrayList<String> censoring = new ArrayList<>();
+
     ChatFilter cf;
     private ChatServer(int port, String path) {
         this.port = port;
@@ -70,6 +70,7 @@ final class ChatServer {
             server.setCF(args[1]);
             while (scanner.hasNextLine()) {
                 String newLine = scanner.nextLine();
+                System.out.println();
                 server.addCF(args[1], newLine);
             }
 
