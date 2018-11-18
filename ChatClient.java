@@ -98,15 +98,6 @@ final class ChatClient {
      * If the username is not specified "Anonymous" should be used
      */
 
-    private static void closes(ChatClient client) {
-        try {
-            client.sInput.close();
-            client.socket.close();
-            client.sOutput.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public static void main(String[] args) throws IOException {
 
@@ -128,10 +119,26 @@ final class ChatClient {
 
         while (true) {
             String string = s.nextLine();
+            if (string.equals("/list")){
+               client.sendMessage(new ChatMessage("/list", 0));
+            }
+            if (string.contains("/msg")){
+                String[] temp = string.split(" ");
+                String username = temp[1];
+                String message = "";
+                for (int i = 2; i < temp.length; i++) {
+                    message += temp[i] + " ";
+                }
+                message = message.substring(0, message.length() - 1);
+                ChatMessage cm = new ChatMessage(message, 0, username);
+                client.sendMessage(cm);
+            }
+
             if (string.equalsIgnoreCase("/logout")) {
                 client.sendMessage(new ChatMessage( client.username + "disconnected with a LOGOUT message", 1));
                 System.out.println("Server has closed the connection.");
-                return;
+                break;
+
             } else {
                 client.sendMessage(new ChatMessage(string, 0));
                 client.sOutput.flush();

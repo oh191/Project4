@@ -86,7 +86,19 @@ final class ChatServer {
         int id;
         String username;
         ChatMessage cm;
-
+        private void directMessage(String message, String user){
+            for (int i = 0; i < clients.size(); i++) {
+                if (username.equals(clients.get(i).username)) {
+                    try {
+                        sOutput.writeObject(time + username + " -> " + user + ":" + message + "\n");
+                        clients.get(i).sOutput.writeObject(time + username + " -> " + user + ":" + message + "\n");
+                        System.out.println(time + username + " -> " + user + ":" + message + "\n");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
         private ClientThread(Socket socket, int id) {
             time = sdf.format(new Date(System.currentTimeMillis())) + " ";
             this.id = id;
@@ -113,6 +125,16 @@ final class ChatServer {
                     cm = (ChatMessage) sInput.readObject();
                     String messageCreated = cm.getMessage();
                     time = sdf.format(new Date(System.currentTimeMillis())) + " ";
+                    if (cm.getRecipient() != null){
+                        directMessage(cm.getMessage(), cm.getRecipient());
+                    }
+                    if (cm.getMessage().equals("/list")){
+                        String name = "";
+                        for (int i = 0; i < clients.size(); i++) {
+                            name += clients.get(i).username + "\n";
+                        }
+                        sOutput.writeObject(name);
+                    }
                     if (cm.getTypes() == 1) {
                         broadcast(username + ": " + messageCreated);
                         remove(id);
@@ -120,7 +142,8 @@ final class ChatServer {
                         broadcast(username + ": " + messageCreated);
                     }
                     if (clients.size() == 0) {
-                        return;
+                        System.out.println("Server has closed the connection");
+                        break;
                     }
 
                 } catch (IOException | ClassNotFoundException e) {

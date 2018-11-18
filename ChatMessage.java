@@ -13,9 +13,6 @@ final class ChatMessage implements Serializable {
         this.recipient = recipient;
     }
 
-    public void directMessage(String message, String username){
-
-    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
