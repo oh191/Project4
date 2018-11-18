@@ -114,14 +114,13 @@ final class ChatClient {
         // Get proper arguments and override defaults
         // Create your client and start it
         ChatClient client;
-        String string1 = s.nextLine();
-        String[] ss = string1.split(" ");
-        if (ss.length == 3) {
-            client = new ChatClient(ss[2], Integer.parseInt(ss[1]), ss[0]);
-        } else if (ss.length == 2) {
-            client = new ChatClient(ss[0], Integer.parseInt(ss[1]));
-        } else if (ss.length == 1) {
-            client = new ChatClient(ss[0]);
+
+        if (args.length == 3) {
+            client = new ChatClient(args[2], Integer.parseInt(args[1]), args[0]);
+        } else if (args.length == 2) {
+            client = new ChatClient(args[0], Integer.parseInt(args[1]));
+        } else if (args.length == 1) {
+            client = new ChatClient(args[0]);
         } else {
             client = new ChatClient();
         }
@@ -137,6 +136,7 @@ final class ChatClient {
                 return;
             } else {
                 client.sendMessage(new ChatMessage(string, 0));
+                client.sOutput.flush();
             }
         }
     }

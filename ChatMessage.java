@@ -4,9 +4,16 @@ import java.io.Serializable;
 final class ChatMessage implements Serializable {
     private static final long serialVersionUID = 6898543889087L;
     private String message;
+    private String recipient;
     private int types;
 
-    public ChatMessage(){
+    public ChatMessage(String message, int types, String recipient){
+        this.message = message;
+        this.types = types;
+        this.recipient = recipient;
+    }
+
+    public void directMessage(String message, String username){
 
     }
 
@@ -21,6 +28,8 @@ final class ChatMessage implements Serializable {
     public int getTypes() {
         return types;
     }
+
+    public String getRecipient() {return recipient;}
 
     public ChatMessage(String message, int types){
         this.message = message;

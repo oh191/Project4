@@ -13,6 +13,7 @@ final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
     private final int port;
+    String file;
     Scanner s = new Scanner(System.in);
     String pattern = "HH:mm:ss";
     SimpleDateFormat sdf = new SimpleDateFormat(pattern);
@@ -48,12 +49,10 @@ final class ChatServer {
         }
     }
     private void setCF(String path){
+        file = path;
         cf = new ChatFilter(path);
     }
 
-    private void addCF(String path, String aLine){
-        cf.add(path, aLine);
-    }
     /*
      *  > java ChatServer
      *  > java ChatServer portNumber
@@ -68,13 +67,7 @@ final class ChatServer {
             System.out.println("Banned Words File: " + args[1]);
             System.out.println("Banned Words: ");
             server.setCF(args[1]);
-            while (scanner.hasNextLine()) {
-                String newLine = scanner.nextLine();
-                System.out.println();
-                server.addCF(args[1], newLine);
-            }
-
-
+            System.out.println();
         } else {
             server = new ChatServer();
         }
@@ -140,8 +133,8 @@ final class ChatServer {
 
         private synchronized void broadcast(String message) {
             String newMessage = cf.filter(message);
-            writeMessage(time + message);
-            System.out.println(time + message);
+            writeMessage(time + newMessage);
+            System.out.println(time + newMessage);
         }
 
         public synchronized void remove(int id) {
@@ -151,7 +144,10 @@ final class ChatServer {
         private boolean writeMessage(String msg) {
             try {
                 if (socket.isConnected()) {
-                    sOutput.writeObject(msg + "\n");
+                    for (int i = 0; i < clients.size(); i++) {
+                        clients.get(i).sOutput.writeObject(msg + "\n");
+                    }
+
                     return true;
                 }
             } catch (IOException e) {
