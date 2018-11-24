@@ -9,6 +9,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Chatting program
+ *
+ * @author Junseok Oh
+ * @author Javed Hashim
+ * @version 11-15-18
+ */
 final class ChatServer {
     private static int uniqueId = 0;
     private final List<ClientThread> clients = new ArrayList<>();
@@ -20,6 +27,8 @@ final class ChatServer {
     String time = sdf.format(new Date(System.currentTimeMillis())) + " ";
 
     ChatFilter cf;
+    boolean isTrue = true;
+    static boolean statTrue;
 
     private ChatServer(int port, String path) {
         this.port = port;
@@ -38,7 +47,7 @@ final class ChatServer {
         Socket socket;
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            while (true) {
+            while (isTrue) {
                 socket = serverSocket.accept();
                 Runnable r = new ClientThread(socket, uniqueId++);
                 Thread t = new Thread(r);
@@ -54,7 +63,6 @@ final class ChatServer {
         file = path;
         cf = new ChatFilter(path);
     }
-
     /*
      *  > java ChatServer
      *  > java ChatServer portNumber
@@ -63,7 +71,6 @@ final class ChatServer {
 
     public static void main(String[] args) {
         ChatServer server;
-        Scanner scanner = new Scanner(System.in);
         if (args.length == 2) {
             server = new ChatServer(Integer.parseInt(args[0]), args[1]);
             System.out.println("Banned Words File: " + args[1]);
@@ -89,12 +96,22 @@ final class ChatServer {
         String username;
         ChatMessage cm;
 
+        private void close() {
+            try {
+                sOutput.close();
+                socket.close();
+                sInput.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         private void directMessage(String message, String user) {
             for (int i = 0; i < clients.size(); i++) {
                 if (user.equals(clients.get(i).username)) {
                     try {
                         sOutput.writeObject(time + username + " -> " + user + ": " + message + "\n");
-                        clients.get(i).sOutput.writeObject(time + username + " -> " + user + ":" + message + "\n");
+                        clients.get(i).sOutput.writeObject(time + username + " -> " + user + ": " + message + "\n");
                         System.out.println(time + username + " -> " + user + ": " + message + "\n");
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -123,33 +140,40 @@ final class ChatServer {
          */
         @Override
         public void run() {
-            while (true) {
+            while (isTrue) {
                 time = sdf.format(new Date(System.currentTimeMillis())) + " ";
                 try {
                     cm = (ChatMessage) sInput.readObject();
                     String messageCreated = cm.getMessage();
                     time = sdf.format(new Date(System.currentTimeMillis())) + " ";
-                    if (cm.getRecipient() != null) {
-                        directMessage(cm.getMessage(), cm.getRecipient());
+                    if (cm.getTypes() == 1) {
+                        System.out.println(time + username + " disconnected with a LOGOUT message");
+                        remove(id);
+
                     } else if (cm.getMessage().equals("/list")) {
                         String name = "";
                         for (int i = 0; i < clients.size(); i++) {
                             name += clients.get(i).username + "\n";
                         }
                         sOutput.writeObject(name);
-                    } else if (cm.getTypes() == 1) {
-                        broadcast(username + ": " + messageCreated);
-                        remove(id);
+                    } else if (cm.getRecipient() != null) {
+                        directMessage(cm.getMessage(), cm.getRecipient());
                     } else {
                         broadcast(username + ": " + messageCreated);
                     }
                     if (clients.size() == 0) {
                         System.out.println("Server has closed the connection");
+
+                        isTrue = false;
+                        close();
                         break;
                     }
 
-                } catch (IOException | ClassNotFoundException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
+                    System.out.println("Server has closed the connection");
+                    isTrue = false;
+                    close();
                 }
 
                 // Send message back to the client
@@ -163,7 +187,11 @@ final class ChatServer {
         }
 
         public synchronized void remove(int id) {
-            clients.remove(id);
+            for (int i = 0; i < clients.size(); i++) {
+                if (id == clients.get(i).id) {
+                    clients.remove(i);
+                }
+            }
         }
 
         private boolean writeMessage(String msg) {
@@ -174,8 +202,12 @@ final class ChatServer {
                     }
 
                     return true;
+                } else {
+                    close();
+                    return false;
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
+                close();
                 e.printStackTrace();
             }
             return false;

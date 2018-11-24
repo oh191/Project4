@@ -4,6 +4,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Chatting program
+ *
+ * @author Junseok Oh
+ * @author Javed Hashim
+ * @version 11-15-18
+ */
+
 final class ChatClient {
     private ObjectInputStream sInput;
     private ObjectOutputStream sOutput;
@@ -12,6 +20,7 @@ final class ChatClient {
     private final String server;
     private final String username;
     private final int port;
+    private boolean isTrue = true;
 
     private ChatClient(String server, int port, String username) {
         this.server = server;
@@ -36,8 +45,6 @@ final class ChatClient {
         port = 1500;
         server = "localHost";
     }
-
-
     /*
      * This starts the Chat Client
      */
@@ -66,14 +73,26 @@ final class ChatClient {
         // After starting, send the clients username to the server.
         try {
             sOutput.writeObject(username);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            close();
+            return false;
         }
 
         return true;
     }
 
-
+    private void close(){
+        try {
+            if (sInput != null)
+            sInput.close();
+            if (sOutput != null)
+            sOutput.close();
+            if (socket != null)
+            socket.close();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
     /*
      * This method is used to send a ChatMessage Objects to the server
      */
@@ -121,8 +140,7 @@ final class ChatClient {
             String string = s.nextLine();
             if (string.equals("/list")){
                client.sendMessage(new ChatMessage("/list", 0));
-            }
-            if (string.contains("/msg")){
+            } else if (string.contains("/msg")){
                 String[] temp = string.split(" ");
                 String username = temp[1];
                 String message = "";
@@ -132,11 +150,9 @@ final class ChatClient {
                 message = message.substring(0, message.length() - 1);
                 ChatMessage cm = new ChatMessage(message, 0, username);
                 client.sendMessage(cm);
-            }
-
-            if (string.equalsIgnoreCase("/logout")) {
-                client.sendMessage(new ChatMessage( client.username + "disconnected with a LOGOUT message", 1));
+            } else if (string.equalsIgnoreCase("/logout")) {
                 System.out.println("Server has closed the connection.");
+                client.sendMessage(new ChatMessage("logout", 1));
                 break;
 
             } else {
@@ -154,12 +170,13 @@ final class ChatClient {
      */
     private final class ListenFromServer implements Runnable {
         public void run() {
-            while (true) {
+            while (isTrue) {
                 try {
                     String msg = (String) sInput.readObject();
                     System.out.print(msg);
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    close();
+                    isTrue = false;
                 }
             }
         }
