@@ -47,7 +47,7 @@ final class ChatServer {
         Socket socket;
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            while (isTrue) {
+            while (true) {
                 socket = serverSocket.accept();
                 Runnable r = new ClientThread(socket, uniqueId++);
                 Thread t = new Thread(r);
@@ -96,15 +96,6 @@ final class ChatServer {
         String username;
         ChatMessage cm;
 
-        private void close() {
-            try {
-                sOutput.close();
-                socket.close();
-                sInput.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         private void directMessage(String message, String user) {
             for (int i = 0; i < clients.size(); i++) {
@@ -163,17 +154,10 @@ final class ChatServer {
                     }
                     if (clients.size() == 0) {
                         System.out.println("Server has closed the connection");
-
-                        isTrue = false;
-                        close();
-                        break;
                     }
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    System.out.println("Server has closed the connection");
-                    isTrue = false;
-                    close();
                 }
 
                 // Send message back to the client
@@ -203,11 +187,9 @@ final class ChatServer {
 
                     return true;
                 } else {
-                    close();
                     return false;
                 }
             } catch (Exception e) {
-                close();
                 e.printStackTrace();
             }
             return false;
