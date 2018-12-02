@@ -100,17 +100,11 @@ public class Warehouse {
                 System.out.println("Enter Zip Code:");
                 buyerZIPCode = s.nextInt();
 
-                System.out.printf("\n====================\nTO: %s\n%s\n%s, %s, %d" +
-                                "\nWeight:         %f\nPrice:        $%f\nProduct: %s",
-                        buyerName, buyerAddress, buyerCity, buyerState,
-                        buyerZIPCode, productWeight, productPrice, productName);
+                ShippingAddress shippingAddress = new ShippingAddress
+                        (buyerName, buyerAddress, buyerCity, buyerState, buyerZIPCode);
+                Package pkg = new Package(packageID, productName, productWeight, productPrice, shippingAddress);
 
-                try {
-                    FileWriter fw = new FileWriter(PACKAGE_FILE, true);
-                    fw.write("a, b, c, d");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                System.out.println("\n" + pkg.shippingLabel());
                 break;
             case 2:
                 System.out.println("Vehicle Options:\n1) Truck\n2)Drone\n3)Cargo Plane\n");

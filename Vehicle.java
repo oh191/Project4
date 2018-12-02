@@ -214,8 +214,11 @@ public class Vehicle implements Profitable {
      * @param warehousePackages List of packages to add from
      */
     public void fill(ArrayList<Package> warehousePackages) {
-
-
+        for (int i = 0; i < warehousePackages.size(); i++) {
+            if (addPackage(warehousePackages.get(i))){
+                if ()
+            }
+        }
     }
 
 
