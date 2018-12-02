@@ -15,6 +15,16 @@ public class Warehouse {
     final static File N_PACKAGES_FILE = new File(folderPath + "NumberOfPackages.txt");
     final static File PRIME_DAY_FILE = new File(folderPath + "PrimeDay.txt");
     final static double PRIME_DAY_DISCOUNT = .15;
+
+    static String menu = "==========Options==========\n" +
+            "1) Add Package\n" +
+            "2) Add Vehicle\n" +
+            "3) Activate Prime Day\n" +
+            "4) Send Vehicle\n" +
+            "5) Print Statistics\n" +
+            "6) Exit\n" +
+            "===========================\n";
+
     static String packageID;
     static String productName;
     static double productWeight;
@@ -25,6 +35,11 @@ public class Warehouse {
     static String buyerState;
     static int buyerZIPCode;
 
+    static int vehicle;
+    static String licensePlate;
+    static int carryWeight;
+    static boolean isPrimeDay;
+
     /**
      * Main Method
      *
@@ -34,14 +49,6 @@ public class Warehouse {
         //TODO
         Scanner s = new Scanner(System.in);
         boolean isRepeating = false;
-        String menu = "==========Options==========\n" +
-                "1) Add Package\n" +
-                "2) Add Vehicle\n" +
-                "3) Activate Prime Day\n" +
-                "4) Send Vehicle\n" +
-                "5) Print Statistics\n" +
-                "6) Exit\n" +
-                "===========================\n";
         int option;
         //1) load data (vehicle, packages, profits, packages shipped and primeday) from files using DatabaseManager
 
@@ -98,14 +105,45 @@ public class Warehouse {
                         buyerName, buyerAddress, buyerCity, buyerState,
                         buyerZIPCode, productWeight, productPrice, productName);
 
-                try{
+                try {
                     FileWriter fw = new FileWriter(PACKAGE_FILE, true);
                     fw.write("a, b, c, d");
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
                 break;
             case 2:
+                System.out.println("Vehicle Options:\n1) Truck\n2)Drone\n3)Cargo Plane\n");
+                vehicle = s.nextInt();
+                System.out.println("Enter License Plate No.:");
+                licensePlate = s.nextLine();
+                System.out.println("Enter Maximum Carry Weight:");
+                carryWeight = s.nextInt();
+
+                break;
+            case 3:
+                if (menu.contains("Deactivate")) {
+                    menu = "==========Options==========\n" +
+                            "1) Add Package\n" +
+                            "2) Add Vehicle\n" +
+                            "3) Activate Prime Day\n" +
+                            "4) Send Vehicle\n" +
+                            "5) Print Statistics\n" +
+                            "6) Exit\n" +
+                            "===========================\n";
+                    isPrimeDay = true;
+                } else if (menu.contains("Activate")) {
+                    menu = "==========Options==========\n" +
+                            "1) Add Package\n" +
+                            "2) Add Vehicle\n" +
+                            "3) Deactivate Prime Day\n" +
+                            "4) Send Vehicle\n" +
+                            "5) Print Statistics\n" +
+                            "6) Exit\n" +
+                            "===========================\n";
+                    isPrimeDay = false;
+                }
+                break;
         }
         //3) save data (vehicle, packages, profits, packages shipped and primeday) to files (overwriting them) using DatabaseManager
 
