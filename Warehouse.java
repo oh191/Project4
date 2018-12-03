@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -24,6 +25,12 @@ public class Warehouse {
             "5) Print Statistics\n" +
             "6) Exit\n" +
             "===========================\n";
+    static String vehichleMenu = "Options :\n" +
+            "1) Send Truck\n" +
+            "2) Send Drone\n" +
+            "3) Send Cargo Plane\n" +
+            "4) Send First Available\n";
+    static String zipCodeOptions = "ZIP Code Options:\n1) Send to first ZIP Code\n2) Send to mode of ZIP Codes";
 
     static String packageID;
     static String productName;
@@ -39,6 +46,9 @@ public class Warehouse {
     static String licensePlate;
     static int carryWeight;
     static boolean isPrimeDay;
+
+    static ArrayList<Package> pkgs = new ArrayList<>();
+    static ArrayList<Vehicle> vehicles = new ArrayList<>();
 
     /**
      * Main Method
@@ -103,7 +113,7 @@ public class Warehouse {
                 ShippingAddress shippingAddress = new ShippingAddress
                         (buyerName, buyerAddress, buyerCity, buyerState, buyerZIPCode);
                 Package pkg = new Package(packageID, productName, productWeight, productPrice, shippingAddress);
-
+                pkgs.add(pkg);
                 System.out.println("\n" + pkg.shippingLabel());
                 break;
             case 2:
@@ -113,6 +123,13 @@ public class Warehouse {
                 licensePlate = s.nextLine();
                 System.out.println("Enter Maximum Carry Weight:");
                 carryWeight = s.nextInt();
+                if (vehicle == 1) {
+                    Truck truck = new Truck(licensePlate, carryWeight);
+                } else if (vehicle == 2) {
+                    Drone drone = new Drone(licensePlate, carryWeight);
+                } else if (vehicle == 3) {
+                    CargoPlane cargoPlane = new CargoPlane(licensePlate, carryWeight);
+                }
 
                 break;
             case 3:
@@ -138,6 +155,44 @@ public class Warehouse {
                     isPrimeDay = false;
                 }
                 break;
+            case 4:
+                ArrayList<Integer> placeOfVehicle = new ArrayList<>();
+                if (vehicles.size() < 1) {
+                    System.out.println("Error: No vehicles available.");
+                } else if (pkgs.size() < 1) {
+                    System.out.println("Error: No packages avaliable.");
+                } else {
+                    System.out.println(vehichleMenu);
+                    int choice = s.nextInt();
+                    System.out.println(zipCodeOptions);
+                    int choiceZIP = s.nextInt();
+                    switch (choice) {
+                        case 1:
+                            for (Vehicle vehicle : vehicles) {
+                                if (vehicle instanceof Truck) {
+                                    placeOfVehicle.add(vehicles.indexOf(vehicle));
+                                    if (choiceZIP == 1) {
+                                        for (Package tempPkg : vehicle.getPackages()){
+                                            vehicle.setZipDest(tempPkg.getDestination().);
+                                        }
+                                    }
+
+                                }
+                            }
+                        case 2:
+                            for (Vehicle vehicle : vehicles) {
+                                if (vehicle instanceof Drone) {
+
+                                }
+                            }
+                        case 3:
+                            for (Vehicle vehicle : vehicles) {
+                                if (vehicle instanceof CargoPlane) {
+
+                                }
+                            }
+                    }
+                }
         }
         //3) save data (vehicle, packages, profits, packages shipped and primeday) to files (overwriting them) using DatabaseManager
 

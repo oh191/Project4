@@ -161,13 +161,13 @@ public class Vehicle implements Profitable {
      * @return whether or not it was successful in adding the package
      */
     public boolean addPackage(Package pkg) {
-        if ((currentWeight +  pkg.getWeight()) < maxWeight) {
+        if ((currentWeight + pkg.getWeight()) < maxWeight) {
             packages.add(pkg);
             return true;
         } else {
             return false;
         }
-    }
+    }a
 
     
     
