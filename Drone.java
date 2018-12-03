@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Drone extends Vehicle {
 
-    final double GAS_RATE = 2.33;
+    final double GAS_RATE = 1.33;
     private String licensePlate;
     private double maxWeight;
     private double currentWeight;
@@ -28,6 +28,7 @@ public class Drone extends Vehicle {
         this.licensePlate = licensePlate;
         this.maxWeight = maxWeight;
 
+
     }
 
     /*
@@ -43,19 +44,15 @@ public class Drone extends Vehicle {
      */
     @Override
     public double getProfit() {
-        double price = 0.0;
-        double differ = 1.66;
-        Drone drone = new Drone();
-        ArrayList<Package> packageArrayList = drone.packages;
+        double range = 0; // Put the range here
+        double difference = range * GAS_RATE;
+        double sum = 0.0;
 
-        for (Package pack : packageArrayList) {
-            price += pack.getPrice();
-
-
+        for (Package p: packages) {
+            sum += p.getPrice();
         }
 
-
-        return price - differ;
+        return sum - difference;
 
     }
 

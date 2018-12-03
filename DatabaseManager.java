@@ -279,7 +279,16 @@ public class DatabaseManager {
      */
 
     public static void savePackagesShipped(File file, int nPackages) {
-        //TODO
+        try {
+            PrintWriter pw = new PrintWriter(file);
+            pw.write(nPackages);
+            pw.flush();
+            pw.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -292,8 +301,17 @@ public class DatabaseManager {
      */
 
     public static void savePrimeDay(File file, boolean primeDay) {
-        if (primeDay){
 
-        }
+        try {
+            PrintWriter pw = new PrintWriter(file);
+            if (primeDay) {
+                pw.write(1);
+            } else {
+                pw.write(0);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            }
     }
+
 }

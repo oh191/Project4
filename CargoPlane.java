@@ -47,6 +47,7 @@ public class CargoPlane extends Vehicle {
     @Override
     public void fill(ArrayList<Package> warehousePackages) {
 
+
     }
 
     /*
@@ -63,20 +64,15 @@ public class CargoPlane extends Vehicle {
      */
     @Override
     public double getProfit() {
-        double price = 0.0;
-        double differ = 2.33;
-        CargoPlane cargoPlane = new CargoPlane();
-        ArrayList<Package> packageArrayList = cargoPlane.packages;
+        double range = 0; // Put the range here
+        double difference = range * 2.33;
+        double sum = 0.0;
 
-        for (Package pack : packageArrayList) {
-            price += pack.getPrice();
-
-
+        for (Package p: packages) {
+            sum += p.getPrice();
         }
 
-
-        return price - differ;
-
+        return sum - difference;
     }
 
     /**
