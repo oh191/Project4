@@ -32,8 +32,16 @@ public class DatabaseManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] temp = line.split(",");
-                Vehicle vehicle = new Vehicle(temp[1], Double.parseDouble(temp[2]));
-                arrayList.add(vehicle);
+                if (temp[0].equalsIgnoreCase("Truck")) {
+                    Truck truck = new Truck(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(truck);
+                } else if (temp[0].equalsIgnoreCase("Drone")) {
+                    Drone drone = new Drone(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(drone);
+                } else if (temp[0].equalsIgnoreCase("CargoPlane")) {
+                    CargoPlane cargoPlane = new CargoPlane(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(cargoPlane);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -197,14 +205,23 @@ public class DatabaseManager {
     public static void saveVehicles(File file, ArrayList<Vehicle> vehicles) {
         PrintWriter pw = null;
         String saveThisPlz = "";
-        try{
+        try {
             pw = new PrintWriter(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        for (int i = 0; i < vehicles.size(); i++) {
-            if (vehicles.get(i).equals(CargoPlane))
+        for (Vehicle vehicle : vehicles) {
+            if (vehicle instanceof Truck) {
+                saveThisPlz += String.format("%s,%s,%f\n",
+                        "Truck", vehicle.getLicensePlate(), vehicle.getMaxWeight());
+            } else if (vehicle instanceof Drone) {
+                saveThisPlz += String.format("%s,%s,%f\n",
+                        "Drone", vehicle.getLicensePlate(), vehicle.getMaxWeight());
+            } else if (vehicle instanceof CargoPlane) {
+                saveThisPlz += String.format("%s,%s,%f\n",
+                        "CargoPlane", vehicle.getLicensePlate(), vehicle.getMaxWeight());
+            }
         }
         pw.write(saveThisPlz);
         pw.flush();
@@ -233,7 +250,7 @@ public class DatabaseManager {
     public static void savePackages(File file, ArrayList<Package> packages) {
         PrintWriter pw = null;
         String saveThisPlz = "";
-        try{
+        try {
             pw = new PrintWriter(file);
         } catch (IOException e) {
             e.printStackTrace();
@@ -262,7 +279,7 @@ public class DatabaseManager {
         PrintWriter pw = null;
         try {
             pw = new PrintWriter(file);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         pw.write(profit + "");
@@ -279,7 +296,15 @@ public class DatabaseManager {
      */
 
     public static void savePackagesShipped(File file, int nPackages) {
-        //TODO
+        try {
+            PrintWriter pw = new PrintWriter(file);
+            pw.write(nPackages);
+            pw.flush();
+            pw.close();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -292,8 +317,18 @@ public class DatabaseManager {
      */
 
     public static void savePrimeDay(File file, boolean primeDay) {
-        if (primeDay){
 
+        try {
+            PrintWriter pw = new PrintWriter(file);
+            if (primeDay) {
+                pw.write(1);
+            } else {
+                pw.write(0);
+            }
+            pw.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
     }
+
 }

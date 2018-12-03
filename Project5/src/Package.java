@@ -137,7 +137,7 @@ public class Package {
      */
     public String shippingLabel() {
     	return String.format("\n====================\nTO: %s\n%s\n%s, %s, %d" +
-                        "\nWeight:         %f\nPrice:        $%f\nProduct: %s",
+                        "\nWeight:         %.2f\nPrice:        $%.2f\nProduct: %s",
                 destination.name, destination.address, destination.city,
                 destination.state, destination.zipCode, weight, price, product);
     }

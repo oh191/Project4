@@ -12,7 +12,7 @@ public class CargoPlane extends Vehicle {
     private double currentWeight;
     private int zipDest;
     private ArrayList<Package> packages;
-
+    private int maxRange;
 
     /**
      * Default Constructor
@@ -46,6 +46,24 @@ public class CargoPlane extends Vehicle {
      */
     @Override
     public void fill(ArrayList<Package> warehousePackages) {
+        int range = 0;
+        boolean isTrue = true;
+
+        while (isTrue) {
+            for (int i = 0; i < warehousePackages.size(); i++) {
+                if (isFull()) {
+                    isTrue = false;
+                } else {
+                    int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
+                    if (Math.abs(difference) == range) {
+                        if (addPackage(warehousePackages.get(i))) {
+                            maxRange = difference;
+                        }
+                    }
+                    range++;
+                }
+            }
+        }
 
     }
 
@@ -61,22 +79,16 @@ public class CargoPlane extends Vehicle {
      * &sum;p<sub>price</sub> - (range<sub>max</sub> &times; 2.33)
      * </p>
      */
-    @Override
     public double getProfit() {
-        double price = 0.0;
-        double differ = 2.33;
-        CargoPlane cargoPlane = new CargoPlane();
-        ArrayList<Package> packageArrayList = cargoPlane.packages;
+        double range = maxRange * 10; // Put the range here
+        double difference = range * 2.33;
+        double sum = 0.0;
 
-        for (Package pack : packageArrayList) {
-            price += pack.getPrice();
-
-
+        for (Package p: packages) {
+            sum += p.getPrice();
         }
 
-
-        return price - differ;
-
+        return sum - difference;
     }
 
     /**
@@ -91,7 +103,6 @@ public class CargoPlane extends Vehicle {
      *
      * @return Cargo Plane Report
      */
-    @Override
     public String report() {
         CargoPlane cargoPlane= new CargoPlane();
 
