@@ -6,25 +6,29 @@ import java.util.ArrayList;
 
 public class Drone extends Vehicle {
 
-    final private double GAS_RATE = 1.33;
-    /**
-     * Default Contructor 
-     */
-    //============================================================================
-    //TODO
-    
-    //============================================================================
+    final double GAS_RATE = 2.33;
+    private String licensePlate;
+    private double maxWeight;
+    private double currentWeight;
+    private int zipDest;
+    private ArrayList<Package> packages;
 
-    /**
-     * Constructor
-     * 
-     * @param licensePlate license plate of vehicle
-     * @param maxWeight    maximum weight that the vehicle can hold
-     */
-    //============================================================================
-    //TODO
-    
-    //============================================================================
+    public Drone() {
+        this.licensePlate = "";
+        this.maxWeight = 0.0;
+        this.currentWeight = 0.0;
+        this.zipDest = 0;
+        this.packages = new ArrayList<>();
+
+    }
+
+
+    public Drone(String licensePlate , double maxWeight) {
+        super();
+        this.licensePlate = licensePlate;
+        this.maxWeight = maxWeight;
+
+    }
 
     /*
      * =============================================================================
@@ -39,8 +43,20 @@ public class Drone extends Vehicle {
      */
     @Override
     public double getProfit() {
-    	//TODO
-    	
+        double price = 0.0;
+        double differ = 1.66;
+        Drone drone = new Drone();
+        ArrayList<Package> packageArrayList = drone.packages;
+
+        for (Package pack : packageArrayList) {
+            price += pack.getPrice();
+
+
+        }
+
+
+        return price - differ;
+
     }
 
     /**
@@ -52,14 +68,30 @@ public class Drone extends Vehicle {
      * <li>Net Profit</li>
      * <li>Shipping labels of all packages in truck</li>
      * </ul>
-     * 
+     *
      * @return Truck Report
      */
     @Override
     public String report() {
-    	//TODO
+        CargoPlane cargoPlane= new CargoPlane();
+
+        String output = "==========Drone Report==========\n";
+        output += "License Plate No.: " + cargoPlane.getLicensePlate() + "\n" ;
+        output += "Destination: " + cargoPlane.getZipDest() + "\n";
+        output += "Weight Load: " + cargoPlane.getCurrentWeight() + "/" + cargoPlane.getMaxWeight() + "\n";
+        output += "Net Profit: (" +  getProfit() + ")" + "\n";
+        output += "==============================" + "\n";
+        ArrayList<Package> cargoPlanePackages = cargoPlane.getPackages();
+        for (Package packages : cargoPlanePackages) {
+            output += "=====Shipping Labels=====\n";
+
+            output += packages.shippingLabel();
+
+        }
+
+        return output;
     }
-    
-   
+
+
 
 }

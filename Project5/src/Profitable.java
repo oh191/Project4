@@ -5,7 +5,10 @@
  * with returning total profits it must also be able to provide a report.
  */
 public interface Profitable {
-	
-	//TODO
+
+
+    double getProfit();
+    String report();
+
 
 }

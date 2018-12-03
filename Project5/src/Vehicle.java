@@ -15,22 +15,31 @@ public class Vehicle implements Profitable {
     /**
      * Default Constructor
      */
-    //============================================================================
-    //TODO
-    
-    //============================================================================
+
+    public Vehicle() {
+        this.licensePlate = "";
+        this.maxWeight = 0.0;
+        this.currentWeight = 0.0;
+        this.zipDest = 0;
+        this.packages = new ArrayList<>();
+    }
 
 
     /**
      * Constructor
-     * 
+     *
      * @param licensePlate license plate of vehicle
      * @param maxWeight    maximum weight of vehicle
      */
-    //============================================================================
-    //TODO
-    
-    //============================================================================
+
+
+    public Vehicle(String licensePlate, double maxWeight) {
+        super();
+        this.licensePlate = licensePlate;
+        this.maxWeight = maxWeight;
+    }
+
+
 
     
     /**
@@ -39,7 +48,7 @@ public class Vehicle implements Profitable {
      * @return license plate of this vehicle
      */
     public String getLicensePlate() {
-        //TODO
+       return licensePlate;
     }
 
     
@@ -52,7 +61,7 @@ public class Vehicle implements Profitable {
      * @param licensePlate license plate to be updated to
      */
     public void setLicensePlate(String licensePlate) {
-        //TODO
+       this.licensePlate = licensePlate;
     }
     
     
@@ -67,7 +76,7 @@ public class Vehicle implements Profitable {
      * @return the maximum weight that this vehicle can carry
      */
     public double getMaxWeight() {
-        //TODO  
+        return maxWeight;
     }
 
     
@@ -80,7 +89,7 @@ public class Vehicle implements Profitable {
      * @param maxWeight max weight to be updated to
      */
     public void setMaxWeight(double maxWeight) {
-        //TODO
+       this.maxWeight = maxWeight;
     }
 
     
@@ -94,7 +103,7 @@ public class Vehicle implements Profitable {
      * @return current weight of all packages inside vehicle
      */
     public double getCurrentWeight() {
-        //TODO
+        return currentWeight;
     }
     
     
@@ -108,7 +117,7 @@ public class Vehicle implements Profitable {
      * @return current ZIP code destination of vehicle
      */
     public int getZipDest() {
-        //TODO 
+        return zipDest;
     }
     
     
@@ -122,7 +131,7 @@ public class Vehicle implements Profitable {
      * @param zipDest ZIP code destination to be updated to
      */
     public void setZipDest(int zipDest) {
-        //TODO
+        this.zipDest = zipDest;
     }
 
     
@@ -136,7 +145,7 @@ public class Vehicle implements Profitable {
      * @return ArrayList of packages in vehicle
      */
     public ArrayList<Package> getPackages() {
-        //TODO
+        return packages;
     }
 
     
@@ -152,8 +161,13 @@ public class Vehicle implements Profitable {
      * @return whether or not it was successful in adding the package
      */
     public boolean addPackage(Package pkg) {
-        //TODO
-    }
+        if ((currentWeight + pkg.getWeight()) < maxWeight) {
+            packages.add(pkg);
+            return true;
+        } else {
+            return false;
+        }
+    }a
 
     
     
@@ -164,7 +178,9 @@ public class Vehicle implements Profitable {
      * Clears vehicle of packages and resets its weight to zero
      */
     public void empty() {
-        //TODO
+        this.currentWeight = 0;
+        packages.clear();
+
     }
     
     
@@ -179,7 +195,7 @@ public class Vehicle implements Profitable {
      * @return whether or not Vehicle is full
      */
     public boolean isFull() {
-        //TODO
+        return currentWeight == maxWeight;
     }
 
     
@@ -198,11 +214,21 @@ public class Vehicle implements Profitable {
      * @param warehousePackages List of packages to add from
      */
     public void fill(ArrayList<Package> warehousePackages) {
-        //TODO
+        for (int i = 0; i < warehousePackages.size(); i++) {
+            if (addPackage(warehousePackages.get(i))){
+                if ()
+            }
+        }
     }
 
-    
 
+    @Override
+    public double getProfit() {
+        return 0;
+    }
 
-
+    @Override
+    public String report() {
+        return null;
+    }
 }

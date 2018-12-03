@@ -12,15 +12,14 @@ public class Package {
      * Default Constructor
      */
     //============================================================================
-
-
-    public Package () {
-        this.id = "";
-        this.product = "";
-        this.weight = 0.0;
-        this.price = 0.00;
-        this.destination = new ShippingAddress();;
+    public Package(){
+        id = "";
+        product ="";
+        weight = 0;
+        price = 0;
+        destination = new ShippingAddress();
     }
+    //TODO
     
     //============================================================================
     /**
@@ -34,29 +33,22 @@ public class Package {
      * 
      */
     //============================================================================
-
-    public Package (String id, String product, double weight, double price, ShippingAddress destination) {
+    public Package(String id, String product, double weight, double price, ShippingAddress destination){
         this.id = id;
         this.product = product;
         this.weight = weight;
         this.price = price;
         this.destination = destination;
     }
-
-
-
+    //TODO
+    
     //============================================================================
 
     /**
      * @return id of package
      */
-
-
-
-
-
     public String getID() {
-        return id;
+    	return id;
     	
     	}
     
@@ -76,7 +68,7 @@ public class Package {
      * @param product the product name to set
      */
     public void setProduct(String product) {
-    	this.product = product;
+        this.product = product;
     }
 
     
@@ -96,7 +88,7 @@ public class Package {
      * @param price the price to set
      */
     public void setPrice(double price) {
-    	this.price = price;
+        this.price = price;
     }
 
     
@@ -144,17 +136,10 @@ public class Package {
      * @return The package's shipping label.
      */
     public String shippingLabel() {
-        String label = "";
-        label += "====================\n";
-        label += "TO: " + Warehouse.buyerName + "\n";
-        label += Warehouse.buyerAddress + "\n";
-        label += "Weight: " + Warehouse.productWeight + "\n";
-        label += "TO: " + Warehouse.productPrice + "\n";
-        label += "TO: " + Warehouse.productName + "\n";
-
-        label += "====================\n";
-        return label;
-
+    	return String.format("\n====================\nTO: %s\n%s\n%s, %s, %d" +
+                        "\nWeight:         %f\nPrice:        $%f\nProduct: %s",
+                destination.name, destination.address, destination.city,
+                destination.state, destination.zipCode, weight, price, product);
     }
 
 }

@@ -8,23 +8,43 @@ public class Truck extends Vehicle {
 
     private final double GAS_RATE = 1.66;
 
+    private String licensePlate;
+    private double maxWeight;
+    private double currentWeight;
+    private int zipDest;
+    private ArrayList<Package> packages;
+
+
     /**
      * Default Constructor
      */
     //============================================================================
-    //TODO
-    
+
+    public Truck() {
+        this.licensePlate = "";
+        this.maxWeight = 0.0;
+        this.currentWeight = 0.0;
+        this.zipDest = 0;
+        this.packages = new ArrayList<>();
+
+    }
+
     //============================================================================
 
     /**
      * Constructor
-     * 
+     *
      * @param licensePlate license plate of vehicle
      * @param maxWeight    maximum weight that the vehicle can hold
      */
     //============================================================================
-    //TODO
-    
+
+    public Truck (String licensePlate , double maxWeight) {
+        super();
+        this.maxWeight = maxWeight;
+        this.licensePlate = licensePlate;
+    }
+
     //============================================================================
 
     /*
@@ -40,8 +60,21 @@ public class Truck extends Vehicle {
      */
     @Override
     public double getProfit() {
-        //TODO
-    	
+
+        double price = 0.0;
+        double differ = 1.66;
+        Truck truck = new Truck();
+        ArrayList<Package> packageArrayList = truck.packages;
+
+        for (Package pack : packageArrayList) {
+            price += pack.getPrice();
+
+
+        }
+
+
+        return price - differ;
+
     }
 
     /**
@@ -53,13 +86,21 @@ public class Truck extends Vehicle {
      * <li>Net Profit</li>
      * <li>Shipping labels of all packages in truck</li>
      * </ul>
-     * 
+     *
      * @return Truck Report
      */
     @Override
     public String report() {
-        //TODO
-    	
+        Truck truck= new Truck();
+
+        String output = "==========Truck Report==========\n";
+        output += "License Plate No.: " + truck.getLicensePlate() + "\n" ;
+        output += "Destination: " + truck.getZipDest() + "\n";
+        output += "Weight Load: " + truck.getCurrentWeight() + "/" + truck.getMaxWeight() + "\n";
+        output += "Net Profit: (" +  getProfit() + ")" + "\n";
+        output += "==============================" + "\n";
+        return output;
+
     }
 
 

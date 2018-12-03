@@ -7,23 +7,35 @@ import java.util.ArrayList;
 public class CargoPlane extends Vehicle {
     final double GAS_RATE = 2.33;
 
+    private String licensePlate;
+    private double maxWeight;
+    private double currentWeight;
+    private int zipDest;
+    private ArrayList<Package> packages;
+
+
     /**
      * Default Constructor
      */
     //============================================================================
-    //TODO
-    
-    //============================================================================
 
-    /**
-     * Constructor
-     *
-     * @param licensePlate license plate of vehicle
-     * @param maxWeight    maximum weight that the vehicle can hold
-     */
-    //============================================================================
-    //TODO
-    
+    public CargoPlane() {
+        this.licensePlate = "";
+        this.maxWeight = 0.0;
+        this.currentWeight = 0.0;
+        this.zipDest = 0;
+        this.packages = new ArrayList<>();
+
+    }
+
+
+    public CargoPlane(String licensePlate , double maxWeight) {
+        super();
+        this.licensePlate = licensePlate;
+        this.maxWeight = maxWeight;
+
+    }
+
     //============================================================================
 
     /**
@@ -34,8 +46,7 @@ public class CargoPlane extends Vehicle {
      */
     @Override
     public void fill(ArrayList<Package> warehousePackages) {
-    	//TODO
-        
+
     }
 
     /*
@@ -52,8 +63,20 @@ public class CargoPlane extends Vehicle {
      */
     @Override
     public double getProfit() {
-    	//TODO
-        
+        double price = 0.0;
+        double differ = 2.33;
+        CargoPlane cargoPlane = new CargoPlane();
+        ArrayList<Package> packageArrayList = cargoPlane.packages;
+
+        for (Package pack : packageArrayList) {
+            price += pack.getPrice();
+
+
+        }
+
+
+        return price - differ;
+
     }
 
     /**
@@ -70,10 +93,27 @@ public class CargoPlane extends Vehicle {
      */
     @Override
     public String report() {
-    	//TODO
-       
+        CargoPlane cargoPlane= new CargoPlane();
+
+        String output = "==========Cargo Plane Report==========\n";
+        output += "License Plate No.: " + cargoPlane.getLicensePlate() + "\n" ;
+        output += "Destination: " + cargoPlane.getZipDest() + "\n";
+        output += "Weight Load: " + cargoPlane.getCurrentWeight() + "/" + cargoPlane.getMaxWeight() + "\n";
+        output += "Net Profit: (" +  getProfit() + ")" + "\n";
+        output += "==============================" + "\n";
+        ArrayList<Package> cargoPlanePackages = cargoPlane.getPackages();
+        for (Package packages : cargoPlanePackages) {
+            output += "=====Shipping Labels=====\n";
+
+            output += packages.shippingLabel();
+
+        }
+
+        return output;
+
+
     }
 
-   
-   
+
+
 }
