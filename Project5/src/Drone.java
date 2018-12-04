@@ -10,29 +10,14 @@ import java.util.ArrayList;
 public class Drone extends Vehicle implements Profitable{
 
     final double GAS_RATE = 1.33;
-    private String licensePlate;
-    private double maxWeight;
-    private double currentWeight;
-    private int zipDest;
-    private ArrayList<Package> packages;
-    private int maxRange;
 
     public Drone() {
-        this.licensePlate = "";
-        this.maxWeight = 0.0;
-        this.currentWeight = 0.0;
-        this.zipDest = 0;
-        this.packages = new ArrayList<>();
-
+        super();
     }
 
 
     public Drone(String licensePlate , double maxWeight) {
-        super();
-        this.licensePlate = licensePlate;
-        this.maxWeight = maxWeight;
-
-
+        super(licensePlate, maxWeight);
     }
 
 
@@ -49,37 +34,18 @@ public class Drone extends Vehicle implements Profitable{
      */
     @Override
     public double getProfit() {
-        double difference = maxRange * GAS_RATE;
+        double range = super.getMaxRange();
+        double difference = range * GAS_RATE;
         double sum = 0.0;
 
-        for (Package p: packages) {
+        for (Package p: super.getPackages()) {
             sum += p.getPrice();
         }
 
         return sum - difference;
 
     }
-    public void fill(ArrayList<Package> warehousePackages) {
-        int range = 0;
-        boolean isTrue = true;
 
-        while (isTrue) {
-            for (int i = 0; i < warehousePackages.size(); i++) {
-                if (isFull()) {
-                    isTrue = false;
-                } else {
-                    int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
-                    if (Math.abs(difference) == range) {
-                        if (addPackage(warehousePackages.get(i))) {
-                            maxRange = difference;
-                        }
-                    }
-                    range++;
-                }
-            }
-        }
-
-    }
 
     /**
      * Generates a String of the Drone report. Drone report includes:
@@ -95,23 +61,24 @@ public class Drone extends Vehicle implements Profitable{
      */
     @Override
     public String report() {
-        CargoPlane cargoPlane= new CargoPlane();
+        if (getCurrentWeight() != 0) {
+            String output = "==========Drone Report==========\n";
+            output += String.format("License Plate No.: %s\n" +
+                    "Destination: %d\n" +
+                    "Weight Load: %.2f/%.2f\n" +
+                    "Net Profit: $%.2f\n", getLicensePlate(), getZipDest(), getCurrentWeight(), getMaxWeight(), getProfit());
 
-        String output = "==========Drone Report==========\n";
-        output += "License Plate No.: " + cargoPlane.getLicensePlate() + "\n" ;
-        output += "Destination: " + cargoPlane.getZipDest() + "\n";
-        output += "Weight Load: " + cargoPlane.getCurrentWeight() + "/" + cargoPlane.getMaxWeight() + "\n";
-        output += "Net Profit: (" +  getProfit() + ")" + "\n";
-        output += "==============================" + "\n";
-        ArrayList<Package> cargoPlanePackages = cargoPlane.getPackages();
-        for (Package packages : cargoPlanePackages) {
-            output += "=====Shipping Labels=====\n";
+            for (Package packa : super.getPackages()) {
+                output += "=====Shipping Labels=====\n";
 
-            output += packages.shippingLabel();
+                output += packa.shippingLabel();
 
+            }
+            output += "\n==============================" + "\n";
+            return output;
+        } else {
+            return "";
         }
-
-        return output;
     }
 
 

@@ -2,19 +2,20 @@ import java.util.ArrayList;
 
 /**
  * <h1>Vehicle</h1> Represents a vehicle
- *  @author Junseok
- *  @author JJaved
- *  @version 12-03-18
+ *
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 
-public abstract class Vehicle implements Profitable{
+public class Vehicle {
     private String licensePlate;
     private double maxWeight;
     private double currentWeight;
     private int zipDest;
     private ArrayList<Package> packages;
 
-    private int maxRange;
+    public int maxRange;
 
     /**
      * Default Constructor
@@ -38,7 +39,9 @@ public abstract class Vehicle implements Profitable{
 
 
     public Vehicle(String licensePlate, double maxWeight) {
-        super();
+        currentWeight = 0.0;
+        zipDest = 0;
+        packages = new ArrayList<>();
         this.licensePlate = licensePlate;
         this.maxWeight = maxWeight;
     }
@@ -132,7 +135,8 @@ public abstract class Vehicle implements Profitable{
      * @return whether or not it was successful in adding the package
      */
     public boolean addPackage(Package pkg) {
-        if ((currentWeight + pkg.getWeight()) < maxWeight) {
+        if ((currentWeight + pkg.getWeight()) <= maxWeight) {
+            currentWeight = currentWeight + pkg.getWeight();
             packages.add(pkg);
             return true;
         } else {
@@ -172,26 +176,32 @@ public abstract class Vehicle implements Profitable{
      * @param warehousePackages List of packages to add from
      */
     public void fill(ArrayList<Package> warehousePackages) {
+
         int range = 0;
         boolean isTrue = true;
 
         while (isTrue) {
             for (int i = 0; i < warehousePackages.size(); i++) {
-                if (isFull()) {
+                if (isFull() || warehousePackages.size() == packages.size()) {
                     isTrue = false;
                 } else {
                     int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
                     if (Math.abs(difference) == range) {
                         if (addPackage(warehousePackages.get(i))) {
+                            System.out.println(warehousePackages.get(i).getID() + "has been added.");
                             maxRange = difference;
+                        } else {
+                            isTrue = false;
                         }
                     }
                     range++;
                 }
             }
+
         }
     }
-    public abstract double getProfit();
-    public abstract String report();
 
+    public int getMaxRange() {
+        return maxRange;
+    }
 }
