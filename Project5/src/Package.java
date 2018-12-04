@@ -1,5 +1,8 @@
 /**
  * <h1>Package</h1> Represents a package
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 public class Package {
     private String id;

@@ -3,6 +3,9 @@ import java.util.ArrayList;
 
 /**
  * <h1>Truck</h1> Represents a Truck
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 public class Truck extends Vehicle implements Profitable {
 
@@ -14,6 +17,7 @@ public class Truck extends Vehicle implements Profitable {
     private int zipDest;
     private ArrayList<Package> packages;
 
+    private int maxRange;
 
     /**
      * Default Constructor
@@ -51,7 +55,24 @@ public class Truck extends Vehicle implements Profitable {
      * =============================================================================
      */
     public void fill(ArrayList<Package> warehousePackages) {
-        
+        int range = 0;
+        boolean isTrue = true;
+
+        while (isTrue) {
+            for (int i = 0; i < warehousePackages.size(); i++) {
+                if (isFull()) {
+                    isTrue = false;
+                } else {
+                    int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
+                    if (Math.abs(difference) == range) {
+                        if (addPackage(warehousePackages.get(i))) {
+                            maxRange = difference;
+                        }
+                    }
+                    range++;
+                }
+            }
+        }
 
     }
     /**
@@ -63,8 +84,8 @@ public class Truck extends Vehicle implements Profitable {
     @Override
     public double getProfit() {
 
-        double range = 0; // Put the range here
-        double difference = range * GAS_RATE;
+
+        double difference = maxRange * GAS_RATE;
         double sum = 0.0;
 
         for (Package p: packages) {

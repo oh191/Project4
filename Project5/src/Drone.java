@@ -2,6 +2,9 @@ import java.util.ArrayList;
 
 /**
  * <h1>Drone</h1> Represents a Drone
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 
 public class Drone extends Vehicle implements Profitable{
@@ -12,6 +15,7 @@ public class Drone extends Vehicle implements Profitable{
     private double currentWeight;
     private int zipDest;
     private ArrayList<Package> packages;
+    private int maxRange;
 
     public Drone() {
         this.licensePlate = "";
@@ -31,6 +35,7 @@ public class Drone extends Vehicle implements Profitable{
 
     }
 
+
     /*
      * =============================================================================
      * | Methods from Profitable Interface
@@ -44,8 +49,7 @@ public class Drone extends Vehicle implements Profitable{
      */
     @Override
     public double getProfit() {
-        double range = 0; // Put the range here
-        double difference = range * GAS_RATE;
+        double difference = maxRange * GAS_RATE;
         double sum = 0.0;
 
         for (Package p: packages) {
@@ -53,6 +57,27 @@ public class Drone extends Vehicle implements Profitable{
         }
 
         return sum - difference;
+
+    }
+    public void fill(ArrayList<Package> warehousePackages) {
+        int range = 0;
+        boolean isTrue = true;
+
+        while (isTrue) {
+            for (int i = 0; i < warehousePackages.size(); i++) {
+                if (isFull()) {
+                    isTrue = false;
+                } else {
+                    int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
+                    if (Math.abs(difference) == range) {
+                        if (addPackage(warehousePackages.get(i))) {
+                            maxRange = difference;
+                        }
+                    }
+                    range++;
+                }
+            }
+        }
 
     }
 

@@ -2,9 +2,12 @@ import java.util.ArrayList;
 
 /**
  * <h1>Vehicle</h1> Represents a vehicle
+ *  @author Junseok
+ *  @author JJaved
+ *  @version 12-03-18
  */
 
-public class Vehicle {
+public abstract class Vehicle implements Profitable{
     private String licensePlate;
     private double maxWeight;
     private double currentWeight;
@@ -188,5 +191,7 @@ public class Vehicle {
             }
         }
     }
+    public abstract double getProfit();
+    public abstract String report();
 
 }

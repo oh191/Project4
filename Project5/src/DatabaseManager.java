@@ -1,11 +1,16 @@
 import javax.print.attribute.standard.Destination;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
  * <h1>Database Manager</h1>
  * <p>
  * Used to locally save and retrieve data.
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 public class DatabaseManager {
 
@@ -27,7 +32,9 @@ public class DatabaseManager {
         BufferedReader br;
         ArrayList<Vehicle> arrayList = new ArrayList<>();
         try {
-            fr = new FileReader(file);
+            Path p1 = file.toPath().normalize();
+            File f1 = p1.normalize().toFile();
+            fr = new FileReader(f1);
             br = new BufferedReader(fr);
             String line;
             while ((line = br.readLine()) != null) {

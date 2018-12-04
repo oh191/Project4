@@ -3,8 +3,11 @@ import java.util.ArrayList;
 
 /**
  * <h1>CargoPlane</h1> Represents a Cargo Plane
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
-public class CargoPlane extends Vehicle {
+public class CargoPlane extends Vehicle implements Profitable{
     final double GAS_RATE = 2.33;
 
     private String licensePlate;
@@ -57,7 +60,7 @@ public class CargoPlane extends Vehicle {
                     int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
                     if (Math.abs(difference) == range) {
                         if (addPackage(warehousePackages.get(i))) {
-                            maxRange = difference;
+                            maxRange = difference * 10;
                         }
                     }
                     range++;
@@ -80,7 +83,7 @@ public class CargoPlane extends Vehicle {
      * </p>
      */
     public double getProfit() {
-        double range = maxRange * 10; // Put the range here
+        double range = maxRange; // Put the range here
         double difference = range * 2.33;
         double sum = 0.0;
 

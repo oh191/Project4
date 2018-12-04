@@ -1,18 +1,19 @@
-import javax.xml.crypto.Data;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
  * <h1>Warehouse</h1>
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 
 public class Warehouse {
     final static String folderPath = "files/";
-    final static File VEHICLE_FILE = new File(folderPath + "VehicleList.csv");
-    final static File PACKAGE_FILE = new File(folderPath + "PackageList.csv");
+//    final static File VEHICLE_FILE = new File(folderPath + "VehicleList.csv");
+//    final static File PACKAGE_FILE = new File(folderPath + "PackageList.csv");
     final static File PROFIT_FILE = new File(folderPath + "Profit.txt");
     final static File N_PACKAGES_FILE = new File(folderPath + "NumberOfPackages.txt");
     final static File PRIME_DAY_FILE = new File(folderPath + "PrimeDay.txt");
@@ -77,8 +78,8 @@ public class Warehouse {
         int option;
         //1) load data (vehicle, packages, profits, packages shipped and primeday) from files using DatabaseManager
         DatabaseManager databaseManager = new DatabaseManager();
-        vehicles = databaseManager.loadVehicles(VEHICLE_FILE);
-        pkgs = databaseManager.loadPackages(PACKAGE_FILE);
+//        vehicles = databaseManager.loadVehicles(VEHICLE_FILE);
+//        pkgs = databaseManager.loadPackages(PACKAGE_FILE);
         profit = databaseManager.loadProfit(PROFIT_FILE);
         nOfPackages = databaseManager.loadPackagesShipped(N_PACKAGES_FILE);
         isPrimeDay = databaseManager.loadPrimeDay(PRIME_DAY_FILE);
@@ -102,6 +103,7 @@ public class Warehouse {
             } while (isRepeating);
             switch (option) {
                 case 1:
+                    s.nextLine();
                     System.out.println("Enter Package ID:");
                     packageID = s.nextLine();
 
@@ -359,8 +361,8 @@ public class Warehouse {
             }
         }
         //3) save data (vehicle, packages, profits, packages shipped and primeday) to files (overwriting them) using DatabaseManager
-        databaseManager.saveVehicles(VEHICLE_FILE, vehicles);
-        databaseManager.savePackages(PACKAGE_FILE, pkgs);
+//        databaseManager.saveVehicles(VEHICLE_FILE, vehicles);
+//        databaseManager.savePackages(PACKAGE_FILE, pkgs);
         databaseManager.saveProfit(PROFIT_FILE, profit);
         databaseManager.savePackagesShipped(N_PACKAGES_FILE, nOfPackages);
         databaseManager.savePrimeDay(PRIME_DAY_FILE, isPrimeDay);
