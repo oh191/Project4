@@ -1,14 +1,15 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * <h1>Vehicle</h1> Represents a vehicle
  *
  * @author Junseok
- * @author JJaved
+ * @author Javed
  * @version 12-03-18
  */
 
-public class Vehicle {
+public class Vehicle implements Profitable {
     private String licensePlate;
     private double maxWeight;
     private double currentWeight;
@@ -176,32 +177,68 @@ public class Vehicle {
      * @param warehousePackages List of packages to add from
      */
     public void fill(ArrayList<Package> warehousePackages) {
-
         int range = 0;
+        int counter = 0;
         boolean isTrue = true;
-
+        int size = warehousePackages.size();
+        int[] change = new int[size];
+        for (int i = 0; i < size; i++) {
+            change[i] = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
+        }
+        Arrays.sort(change);
+        int checker = 0;
         while (isTrue) {
-            for (int i = 0; i < warehousePackages.size(); i++) {
-                if (isFull() || warehousePackages.size() == packages.size()) {
+            for (int i = 0; i < size; i++) {
+                if (range > 99999){
                     isTrue = false;
+                    break;
+                } else if (isFull() || size == counter) {
+                    isTrue = false;
+                    break;
                 } else {
-                    int difference = zipDest - warehousePackages.get(i).getDestination().zipCode;
+                    int difference = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
                     if (Math.abs(difference) == range) {
-                        if (addPackage(warehousePackages.get(i))) {
-                            System.out.println(warehousePackages.get(i).getID() + "has been added.");
-                            maxRange = difference;
-                        } else {
-                            isTrue = false;
+                        if (!packages.contains(warehousePackages.get(i))) {
+                            counter++;
+                            if (addPackage(warehousePackages.get(i))) {
+                                System.out.println(warehousePackages.get(i).getID() + " has been added.");
+                                maxRange = difference;
+                            } else {
+                                isTrue = false;
+                                break;
+                            }
                         }
                     }
-                    range++;
                 }
-            }
 
+            }
+            if (checker < size) {
+                range = change[checker];
+                checker++;
+            }
+        }
+        for (Package p : packages){
+            warehousePackages.remove(p);
         }
     }
 
     public int getMaxRange() {
         return maxRange;
+    }
+
+    public void setMaxRange(int maxRange) {
+        this.maxRange = maxRange;
+    }
+
+    public double getProfit() {
+        double costs = 0.0;
+        for (Package p : packages) {
+            costs += p.getPrice();
+        }
+        return costs;
+    }
+
+    public String report() {
+        return "";
     }
 }

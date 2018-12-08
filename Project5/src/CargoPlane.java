@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -10,6 +11,8 @@ import java.util.ArrayList;
  */
 public class CargoPlane extends Vehicle implements Profitable {
     final double GAS_RATE = 2.33;
+    public int maxRange;
+
 
     /**
      * Default Constructor
@@ -33,7 +36,49 @@ public class CargoPlane extends Vehicle implements Profitable {
      *
      * @param warehousePackages List of packages to add from
      */
+    public void fill(ArrayList<Package> warehousePackages) {
 
+        int range = 0;
+        int counter = 0;
+        boolean isTrue = true;
+        int size = warehousePackages.size();
+        int[] change = new int[size];
+        for (int i = 0; i < size; i++) {
+            change[i] = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
+        }
+        Arrays.sort(change);
+        while (isTrue) {
+            for (int i = 0; i < warehousePackages.size(); i++) {
+                if (range > 99999){
+                    isTrue = false;
+                    break;
+                } else if (isFull() || size == counter) {
+                    isTrue = false;
+                    break;
+                } else {
+                    int difference = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
+                    if (Math.abs(difference) <= range) {
+                        if (!getPackages().contains(warehousePackages.get(i))) {
+                            counter++;
+                            if (addPackage(warehousePackages.get(i))) {
+                                System.out.println(warehousePackages.get(i).getID() + " has been added.");
+                                maxRange = difference;
+                            } else {
+                                isTrue = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+            }
+            range += 10;
+
+        }
+        for (Package p : getPackages()) {
+            Warehouse.pkgs.remove(p);
+        }
+    }
     /*
      * =============================================================================
      * | Methods from Profitable Interface
@@ -46,18 +91,15 @@ public class CargoPlane extends Vehicle implements Profitable {
      * &sum;p<sub>price</sub> - (range<sub>max</sub> &times; 2.33)
      * </p>
      */
+
     public double getProfit() {
 
 
-        double range = super.getMaxRange() * 10;
-        double difference = range * GAS_RATE;
-        double sum = 0.0;
-
-        for (Package p : super.getPackages()) {
-            sum += p.getPrice();
-        }
+        double difference = maxRange * GAS_RATE;
+        double sum = super.getProfit();
 
         return sum - difference;
+
     }
 
     /**
@@ -74,19 +116,21 @@ public class CargoPlane extends Vehicle implements Profitable {
      */
     public String report() {
         if (getCurrentWeight() != 0) {
-            String output = "==========Cargo Plane Report==========\n";
+            String output = "\n==========Cargo Plane Report==========\n";
             output += String.format("License Plate No.: %s\n" +
-                    "Destination: %d\n" +
-                    "Weight Load: %.2f/%.2f\n" +
-                    "Net Profit: $%.2f\n", getLicensePlate(), getZipDest(), getCurrentWeight(), getMaxWeight(), getProfit());
-
-            for (Package packa : super.getPackages()) {
-                output += "=====Shipping Labels=====\n";
-
-                output += packa.shippingLabel();
-
+                            "Destination: %d\n" +
+                            "Weight Load: %.2f/%.2f\n", getLicensePlate(), getZipDest(),
+                    getCurrentWeight(), getMaxWeight());
+            if (getProfit() < 0) {
+                output += String.format("Net Profit: ($%.2f)\n", -1 * getProfit());
+            } else {
+                output += String.format("Net Profit: $%.2f\n", getProfit());
             }
-            output += "\n==============================" + "\n";
+            for (Package packa : getPackages()) {
+                output += "=====Shipping Labels=====\n";
+                output += packa.shippingLabel();
+            }
+            output += "\n==============================\n";
             return output;
 
         } else {

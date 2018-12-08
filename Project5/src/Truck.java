@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 public class Truck extends Vehicle implements Profitable {
 
     private final double GAS_RATE = 1.66;
-
     /**
      * Default Constructor
      */
@@ -47,26 +47,18 @@ public class Truck extends Vehicle implements Profitable {
      * &sum;p<sub>price</sub> - (range<sub>max</sub> &times; 1.66)
      * </p>
      */
-    @Override
     public double getProfit() {
-        double range = getMaxRange();
-        double difference = range * GAS_RATE;
-        double sum = 0.0;
-
-        for (Package p : getPackages()) {
-            sum += p.getPrice();
-        }
-
+        double difference = super.maxRange * GAS_RATE;
+        double sum = super.getProfit();
         return sum - difference;
 
     }
-
     /**
      * Generates a String of the truck report. Truck report includes:
      * <ul>
      * <li>License Plate No.</li>
      * <li>Destination</li>
-     * <li>Current Weight/Maximum Weight</li>
+     * <li>Current Weight/Maximum Weight</li
      * <li>Net Profit</li>
      * <li>Shipping labels of all packages in truck</li>
      * </ul>
@@ -75,19 +67,24 @@ public class Truck extends Vehicle implements Profitable {
      */
     @Override
     public String report() {
-            String output = "==========Truck Report==========\n";
-            output += String.format("License Plate No.: %s\n" +
-                    "Destination: %d\n" +
-                    "Weight Load: %.2f/%.2f\n" +
-                    "Net Profit: $%.2f\n", getLicensePlate(), getZipDest(), getCurrentWeight(), getMaxWeight(), getProfit());
-            for (Package packa : getPackages()) {
-                output += "=====Shipping Labels=====\n";
+        String output = "==========Truck Report==========\n";
+        output += String.format("License Plate No.: %s\n" +
+                        "Destination: %d\n" +
+                        "Weight Load: %.2f/%.2f\n", getLicensePlate(), getZipDest(),
+                getCurrentWeight(), getMaxWeight());
+        if (getProfit() < 0) {
+            output += String.format("Net Profit: ($%.2f)\n", -1 * getProfit());
+        } else {
+            output += String.format("Net Profit: $%.2f\n", getProfit());
+        }
+        for (Package packa : getPackages()) {
+            output += "=====Shipping Labels=====\n";
 
-                output += packa.shippingLabel();
+            output += packa.shippingLabel();
 
-            }
-            output += "\n==============================" + "\n";
-            return output;
+        }
+        output += "\n==============================" + "\n";
+        return output;
 
 
     }
