@@ -1,38 +1,30 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
  * <h1>CargoPlane</h1> Represents a Cargo Plane
+ *
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
-public class CargoPlane extends Vehicle {
-    final double GAS_RATE = 2.33;
-
-    private String licensePlate;
-    private double maxWeight;
-    private double currentWeight;
-    private int zipDest;
-    private ArrayList<Package> packages;
+public class CargoPlane extends Vehicle implements Profitable {
+    final double gasRate = 2.33;
+    public int maxRange;
 
 
     /**
      * Default Constructor
      */
     //============================================================================
-
     public CargoPlane() {
-        this.licensePlate = "";
-        this.maxWeight = 0.0;
-        this.currentWeight = 0.0;
-        this.zipDest = 0;
-        this.packages = new ArrayList<>();
-
+        super();
     }
 
 
-    public CargoPlane(String licensePlate , double maxWeight) {
-        super();
-        this.licensePlate = licensePlate;
-        this.maxWeight = maxWeight;
+    public CargoPlane(String licensePlate, double maxWeight) {
+        super(licensePlate, maxWeight);
 
     }
 
@@ -44,12 +36,49 @@ public class CargoPlane extends Vehicle {
      *
      * @param warehousePackages List of packages to add from
      */
-    @Override
     public void fill(ArrayList<Package> warehousePackages) {
 
+        int range = 0;
+        int counter = 0;
+        boolean isTrue = true;
+        int size = warehousePackages.size();
+        int[] change = new int[size];
+        for (int i = 0; i < size; i++) {
+            change[i] = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
+        }
+        Arrays.sort(change);
+        while (isTrue) {
+            for (int i = 0; i < warehousePackages.size(); i++) {
+                if (range > 99999) {
+                    isTrue = false;
+                    break;
+                } else if (isFull() || size == counter) {
+                    isTrue = false;
+                    break;
+                } else {
+                    int difference = Math.abs(warehousePackages.get(i).getDestination().getZipCode() - getZipDest());
+                    if (Math.abs(difference) <= range) {
+                        if (!getPackages().contains(warehousePackages.get(i))) {
+                            counter++;
+                            if (addPackage(warehousePackages.get(i))) {
+                                System.out.println(warehousePackages.get(i).getID() + " has been added.");
+                                maxRange = difference;
+                            } else {
+                                isTrue = false;
+                                break;
+                            }
+                        }
+                    }
+                }
 
+            }
+            range += 10;
+
+        }
+        for (Package p : getPackages()) {
+            Warehouse.pkgs.remove(p);
+        }
     }
-
     /*
      * =============================================================================
      * | Methods from Profitable Interface
@@ -62,17 +91,15 @@ public class CargoPlane extends Vehicle {
      * &sum;p<sub>price</sub> - (range<sub>max</sub> &times; 2.33)
      * </p>
      */
-    @Override
-    public double getProfit() {
-        double range = 0; // Put the range here
-        double difference = range * 2.33;
-        double sum = 0.0;
 
-        for (Package p: packages) {
-            sum += p.getPrice();
-        }
+    public double getProfit() {
+
+
+        double difference = maxRange * gasRate;
+        double sum = super.getProfit();
 
         return sum - difference;
+
     }
 
     /**
@@ -87,29 +114,29 @@ public class CargoPlane extends Vehicle {
      *
      * @return Cargo Plane Report
      */
-    @Override
     public String report() {
-        CargoPlane cargoPlane= new CargoPlane();
+        if (getCurrentWeight() != 0) {
+            String output = "\n==========Cargo Plane Report==========\n";
+            output += String.format("License Plate No.: %s\n" +
+                            "Destination: %d\n" +
+                            "Weight Load: %.2f/%.2f\n", getLicensePlate(), getZipDest(),
+                    getCurrentWeight(), getMaxWeight());
+            if (getProfit() < 0) {
+                output += String.format("Net Profit: ($%.2f)\n", -1 * getProfit());
+            } else {
+                output += String.format("Net Profit: $%.2f\n", getProfit());
+            }
+            for (Package packa : getPackages()) {
+                output += "=====Shipping Labels=====\n";
+                output += packa.shippingLabel();
+            }
+            output += "\n==============================\n";
+            return output;
 
-        String output = "==========Cargo Plane Report==========\n";
-        output += "License Plate No.: " + cargoPlane.getLicensePlate() + "\n" ;
-        output += "Destination: " + cargoPlane.getZipDest() + "\n";
-        output += "Weight Load: " + cargoPlane.getCurrentWeight() + "/" + cargoPlane.getMaxWeight() + "\n";
-        output += "Net Profit: (" +  getProfit() + ")" + "\n";
-        output += "==============================" + "\n";
-        ArrayList<Package> cargoPlanePackages = cargoPlane.getPackages();
-        for (Package packages : cargoPlanePackages) {
-            output += "=====Shipping Labels=====\n";
-
-            output += packages.shippingLabel();
-
+        } else {
+            return "";
         }
-
-        return output;
-
-
     }
-
 
 
 }

@@ -1,11 +1,17 @@
 import javax.print.attribute.standard.Destination;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
  * <h1>Database Manager</h1>
  * <p>
  * Used to locally save and retrieve data.
+ *
+ * @author Junseok
+ * @author JJaved
+ * @version 12-03-18
  */
 public class DatabaseManager {
 
@@ -32,8 +38,16 @@ public class DatabaseManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] temp = line.split(",");
-                Vehicle vehicle = new Vehicle(temp[1], Double.parseDouble(temp[2]));
-                arrayList.add(vehicle);
+                if (temp[0].equalsIgnoreCase("Truck")) {
+                    Vehicle truck = new Truck(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(truck);
+                } else if (temp[0].equalsIgnoreCase("Drone")) {
+                    Vehicle drone = new Drone(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(drone);
+                } else if (temp[0].equalsIgnoreCase("Cargo Plane")) {
+                    Vehicle cargoPlane = new CargoPlane(temp[1], Double.parseDouble(temp[2]));
+                    arrayList.add(cargoPlane);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -72,8 +86,10 @@ public class DatabaseManager {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] temp = line.split(",");
-                ShippingAddress destination = new ShippingAddress(temp[4], temp[5], temp[6], temp[7], Integer.parseInt(temp[8]));
-                Package pkg = new Package(temp[0], temp[1], Double.parseDouble(temp[2]), Double.parseDouble(temp[3]), destination);
+                ShippingAddress destination = new ShippingAddress(temp[4],
+                        temp[5], temp[6], temp[7], Integer.parseInt(temp[8]));
+                Package pkg = new Package(temp[0], temp[1], Double.parseDouble(temp[2]),
+                        Double.parseDouble(temp[3]), destination);
                 arrayList.add(pkg);
             }
         } catch (Exception e) {
@@ -92,7 +108,7 @@ public class DatabaseManager {
      */
     public static double loadProfit(File file) {
         FileReader fr;
-        BufferedReader br = null;
+        BufferedReader br;
         double profit = 0.0;
         try {
             fr = new FileReader(file);
@@ -125,27 +141,26 @@ public class DatabaseManager {
      * @return number of packages shipped from file
      */
     public static int loadPackagesShipped(File file) {
-        FileReader fr;
-        BufferedReader br = null;
         int packageCount = 0;
         try {
-            fr = new FileReader(file);
-            br = new BufferedReader(fr);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            try {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    try {
+                        packageCount += Integer.parseInt(line);
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Math Error (Parse Double)");
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("IOException");
+                e.printStackTrace();
+            }
         } catch (FileNotFoundException e) {
             return 0;
-        }
-        try {
-            String line;
-            while ((line = br.readLine()) != null) {
-                try {
-                    packageCount += Integer.parseInt(line);
-                } catch (IllegalArgumentException e) {
-                    System.out.println("Math Error (Parse Double)");
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("IOException");
-            e.printStackTrace();
         }
         return packageCount;
     }
@@ -160,7 +175,7 @@ public class DatabaseManager {
      */
     public static boolean loadPrimeDay(File file) {
         FileReader fr;
-        BufferedReader br = null;
+        BufferedReader br;
         boolean isTrue = true;
         String line;
         try {
@@ -195,20 +210,35 @@ public class DatabaseManager {
      * @param vehicles ArrayList of vehicles to save to file
      */
     public static void saveVehicles(File file, ArrayList<Vehicle> vehicles) {
-        PrintWriter pw = null;
-        String saveThisPlz = "";
-        try{
-            pw = new PrintWriter(file);
+        try {
+
+            String saveThisPlz = "";
+
+            PrintWriter pw = new PrintWriter(file);
+            BufferedWriter bw = new BufferedWriter(pw);
+
+
+            for (Vehicle vehicle : vehicles) {
+                if (vehicle instanceof Truck) {
+                    Truck truck = (Truck) vehicle;
+                    saveThisPlz += "Truck," + truck.getLicensePlate() + "," + truck.getMaxWeight() + "\n";
+                } else if (vehicle instanceof Drone) {
+                    Drone drone = (Drone) vehicle;
+                    saveThisPlz += "Drone," + drone.getLicensePlate() + "," + drone.getMaxWeight() + "\n";
+                } else if (vehicle instanceof CargoPlane) {
+                    CargoPlane cargoPlane = (CargoPlane) vehicle;
+                    saveThisPlz += "Cargo Plane," + cargoPlane.getLicensePlate()
+                            + "," + cargoPlane.getMaxWeight() + "\n";
+                }
+            }
+            bw.write(saveThisPlz);
+            bw.flush();
+            pw.flush();
+            bw.close();
+            pw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        for (int i = 0; i < vehicles.size(); i++) {
-            if (vehicles.get(i).equals(CargoPlane))
-        }
-        pw.write(saveThisPlz);
-        pw.flush();
-        pw.close();
     }
 
 
@@ -231,23 +261,26 @@ public class DatabaseManager {
      * @param packages ArrayList of packages to save to file
      */
     public static void savePackages(File file, ArrayList<Package> packages) {
-        PrintWriter pw = null;
-        String saveThisPlz = "";
-        try{
-            pw = new PrintWriter(file);
+        try {
+            PrintWriter pw = new PrintWriter(file);
+            BufferedWriter bw = new BufferedWriter(pw);
+            String saveThisPlz = "";
+
+            for (int i = 0; i < packages.size(); i++) {
+                Package thisPkg = packages.get(i);
+                ShippingAddress shipping = packages.get(i).getDestination();
+                saveThisPlz += thisPkg.getID() + "," + thisPkg.getProduct() + "," + thisPkg.getWeight() + ","
+                        + thisPkg.getPrice() + "," + shipping.name + "," + shipping.address + "," + shipping.city
+                        + "," + shipping.state + "," + shipping.zipCode + "\n";
+
+            }
+            bw.write(saveThisPlz);
+            bw.flush();
+            pw.flush();
+            pw.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for (int i = 0; i < packages.size(); i++) {
-            Package thisPkg = packages.get(i);
-            ShippingAddress shipping = packages.get(i).getDestination();
-            saveThisPlz += String.format("%s,%s,%f,%f,%s,%s,%s,%s,%d\n",
-                    thisPkg.getID(), thisPkg.getProduct(), thisPkg.getWeight(), thisPkg.getPrice(),
-                    shipping.name, shipping.address, shipping.city, shipping.state, shipping.zipCode);
-        }
-        pw.write(saveThisPlz);
-        pw.flush();
-        pw.close();
     }
 
 
@@ -259,15 +292,19 @@ public class DatabaseManager {
      */
 
     public static void saveProfit(File file, double profit) {
-        PrintWriter pw = null;
         try {
+
+            PrintWriter pw = new PrintWriter(file);
+            BufferedWriter bw = new BufferedWriter(pw);
             pw = new PrintWriter(file);
-        } catch (IOException e){
+
+            bw.write(profit + "");
+            bw.flush();
+            pw.flush();
+            pw.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        pw.write(profit + "");
-        pw.flush();
-        pw.close();
     }
 
 
@@ -279,16 +316,14 @@ public class DatabaseManager {
      */
 
     public static void savePackagesShipped(File file, int nPackages) {
-        try {
-            PrintWriter pw = new PrintWriter(file);
-            pw.write(nPackages);
-            pw.flush();
-            pw.close();
-
-        } catch (FileNotFoundException e) {
+        try (
+                PrintWriter pw = new PrintWriter(file);
+                BufferedWriter bw = new BufferedWriter(pw)
+        ) {
+            bw.write(nPackages + "");
+        } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -304,14 +339,17 @@ public class DatabaseManager {
 
         try {
             PrintWriter pw = new PrintWriter(file);
+            BufferedWriter bw = new BufferedWriter(pw);
             if (primeDay) {
-                pw.write(1);
+                bw.write("1");
             } else {
-                pw.write(0);
+                bw.write("0");
             }
-        } catch (FileNotFoundException e) {
+            bw.flush();
+            pw.flush();
+        } catch (IOException e) {
             e.printStackTrace();
-            }
+        }
     }
 
 }
